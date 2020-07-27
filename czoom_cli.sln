@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "czoom", "czoom\czoom.csproj", "{8DFE5E08-4956-4634-B861-4E4231052EFD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8DFE5E08-4956-4634-B861-4E4231052EFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DFE5E08-4956-4634-B861-4E4231052EFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DFE5E08-4956-4634-B861-4E4231052EFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DFE5E08-4956-4634-B861-4E4231052EFD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
