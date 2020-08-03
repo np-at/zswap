@@ -14,7 +14,7 @@ namespace czoom
 {
     public static class Program
     {
-        private static ZoomClient _zoomClient;
+        private static ZoomClient? _zoomClient;
 
         public static int Main(string[] args)
         {
@@ -66,16 +66,29 @@ namespace czoom
             return app.Execute(args);
         }
 
-
+        private static UserTypes CheckLicenseStatus(User user)
+        {
+            try
+            {
+                var zUser = _zoomClient?.Users.GetUser(user.Id) ?? throw new NullReferenceException();
+                return zUser.Type;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
         private static void SwapLicenses(User donor, User recipient)
         {
             if (donor == null) throw new ArgumentNullException(nameof(donor));
             if (recipient == null) throw new ArgumentNullException(nameof(recipient));
-            UpdateUser donorUpdateUser = new UpdateUser();
-            donorUpdateUser.Type = UserTypes.Basic;
+            
+            UpdateUser donorUpdateUser = new UpdateUser {Type = UserTypes.Basic};
+            
             try
             {
-                var response = _zoomClient.Users.UpdateUser(donor.Id, donorUpdateUser);
+                bool response = _zoomClient?.Users.UpdateUser(donor.Id, donorUpdateUser) ?? throw new NullReferenceException("_zoomClient no initialized");
                 Console.WriteLine(response ? $"Removed License from donor {donor.Email}" : $"failed to remove license from donor {donor.Email}");
             }
             catch (Exception e)
@@ -86,13 +99,13 @@ namespace czoom
                 throw;
             }
 
-            Task.Delay(4000);
+            Task.Delay(4000).Wait();
             try
             {
                 var recipientUpdateUser = new UpdateUser {Type = UserTypes.Pro};
-                var response = _zoomClient.Users.UpdateUser(recipient.Id, recipientUpdateUser);
+                bool response = _zoomClient.Users.UpdateUser(recipient.Id, recipientUpdateUser);
                 Console.WriteLine(response ? $"Added license to recipient {recipient.Email}" : $"failed to add license to recipient {recipient.Email}");
-                Console.WriteLine("------------FIN--------------");
+                
             }
             catch (Exception e)
             {
@@ -101,6 +114,28 @@ namespace czoom
                 Console.WriteLine(e);
                 throw;
             }
+
+            try
+            {
+                Console.WriteLine("Confirming license statuses, please wait");
+                Task.Delay(3000).Wait();
+                var rStatus = CheckLicenseStatus(recipient);
+                
+                var dStatus = CheckLicenseStatus(donor);
+                Console.WriteLine($"{recipient.Email} has {rStatus.ToString()}");
+                Console.WriteLine($"{donor.Email} has {dStatus.ToString()}");
+                
+                if (rStatus != UserTypes.Pro && dStatus != UserTypes.Basic)
+                    throw new ApplicationException("Failure to swap licenses; \n");
+                Console.WriteLine("------------FIN--------------");
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
         }
 
         private static User SelectUser(IList<User> userList, bool donor = false, string? tryParseEmail = null)
